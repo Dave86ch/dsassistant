@@ -15,17 +15,25 @@ from IPython.display import Markdown, display
 app = Flask(__name__)
 CORS(app)
 
-tree_index = GPTTreeIndex.load_from_disk('/home/davesoma/dsassistant_v1/index_tree_marcus_aurelius.json')
-
 @app.route('/ask', methods=['POST'])
 def query():
     question = request.json.get('question', '')
+    model_path = request.json.get('model_path', '')
+    
+    print(f"Received model_path: {model_path}")  # Add this line to check the received model_path
 
-    if question:
-        response_tree = tree_index.query(question + "answer as if you are Marcus Aurelius and behave as a teacher")
+    if question and model_path:
+        tree_index = GPTTreeIndex.load_from_disk(model_path)
+        response_tree = tree_index.query(question + " answer as if you are Marcus Aurelius and behave as a teacher")
         return jsonify({'response_tree': str(response_tree)})
     else:
-        return jsonify({'error': 'Question is empty'}), 400
+        return jsonify({'error': 'Question or model path is empty'}), 400
+
+@app.route('/data_model')
+def list_models():
+    data_model_path = "/home/davesoma/dsassistant_v1/data_model"
+    models = [f for f in os.listdir(data_model_path) if f.endswith(".json")]
+    return jsonify({'models': models})
 
 if __name__ == '__main__':
     app.run(debug=True)
