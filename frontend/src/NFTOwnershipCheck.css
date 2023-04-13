@@ -42,3 +42,9 @@
     cursor: pointer;
     border-radius: 4px;
   }
+
+  .select-style {
+    width: 300px;
+    font-size: 20px;
+  }
+  

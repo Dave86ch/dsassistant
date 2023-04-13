@@ -24,7 +24,7 @@ def query():
 
     if question and model_path:
         tree_index = GPTTreeIndex.load_from_disk(model_path)
-        response_tree = tree_index.query(question + " answer as if you are Marcus Aurelius and behave as a teacher")
+        response_tree = tree_index.query(question + " answer as if you are a teacher, if not presente in the context answer only 'Sorry not in mine domain of competence'")
         return jsonify({'response_tree': str(response_tree)})
     else:
         return jsonify({'error': 'Question or model path is empty'}), 400
@@ -33,6 +33,7 @@ def query():
 def list_models():
     data_model_path = "/home/davesoma/dsassistant_v1/data_model"
     models = [f for f in os.listdir(data_model_path) if f.endswith(".json")]
+    models.sort()
     return jsonify({'models': models})
 
 if __name__ == '__main__':

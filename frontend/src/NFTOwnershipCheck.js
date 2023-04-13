@@ -424,7 +424,7 @@ const ABI = [
 
 ;
 
-const NFTOwnershipCheck = () => {
+const NFTOwnershipCheck = ({ onModelChange }) => {
   const [connected, setConnected] = useState(false);
   const [owner, setOwner] = useState(false);
   const [account, setAccount] = useState(null);
@@ -469,7 +469,7 @@ const NFTOwnershipCheck = () => {
     const currentOwner = await nftContract.methods.ownerOf(TOKEN_ID).call();
     if (currentOwner.toLowerCase() === userAddress.toLowerCase()) {
       setOwner(true);
-      setOwnershipMessage("Congratulations on your ownership of a unique dscompounding NFT! Enjoy the wisdom and leadership of Marcus Aurelius, one of history's greatest philosophers and emperors");
+      setOwnershipMessage("Congratulations on your ownership of a unique dscompounding NFT! Enjoy the wisdom and leadership dscompounding.com distilled for you.");
     } else {
       setOwner(false);
     }
@@ -524,14 +524,21 @@ return (
       <button onClick={connectWallet}>Connect to Web3 Wallet</button>
     ) : (
       <>
+      <p>Welcome {account}</p>
+        <DisconnectButton onDisconnect={disconnectWallet} />
         {owner ? (
           <div>
+            <p>{ownershipMessage}</p>
             <form onSubmit={handleSubmit}>
             <label>
               Select a model:
               <select
+                className="select-style"
                 value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
+                onChange={(e) => {
+                  setSelectedModel(e.target.value);
+                  onModelChange(e.target.value);
+                }}
               >
                 {models.map((model) => (
                   <option key={model} value={model}>
@@ -557,7 +564,7 @@ return (
             )}
             {/* Add this block for the loading message */}
             {loading && (
-            <p className="loading-text">Marcus is meditating upon your question...</p>
+            <p className="loading-text">I'm meditating upon your question...</p>
           )}
 
           </div>
