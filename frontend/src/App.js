@@ -5,12 +5,16 @@ import myImage from '/home/davesoma/dsassistant_v1/frontend/src/Dave86CH_epic_ba
 import model1Image from '/home/davesoma/dsassistant_v1/frontend/src/data_model_pic/davesoma.jpg';
 import model2Image from '/home/davesoma/dsassistant_v1/frontend/src/data_model_pic/Optimalist_Lee_Kuan_Yew.png';
 import model3Image from '/home/davesoma/dsassistant_v1/frontend/src/data_model_pic/Optimalist_Marcus_Aurelius.png';
+import model4Image from '/home/davesoma/dsassistant_v1/frontend/src/data_model_pic/wisdompill.jpg';
 import axios from 'axios';
 
 
 function App() {
   const [selectedModel, setSelectedModel] = useState('');
   const [imageSrc, setImageSrc] = useState('');
+  const [redirect, setRedirect] = useState(false);
+  
+
 
   const getImageForModel = (model) => {
     // Return the image source based on the selected model
@@ -21,6 +25,8 @@ function App() {
         return model2Image;
       case '2_marcus_aurelius.json':
         return model3Image;
+      case '4_wisdompill.json':
+        return model4Image;
       // Add more cases for each model
       default:
         return myImage;

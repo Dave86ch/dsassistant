@@ -1,8 +1,8 @@
 import React from 'react';
 
-const DisconnectButton = ({ onDisconnect }) => {
+const DisconnectButton = ({ disconnectWallet }) => {
   return (
-    <button onClick={onDisconnect}>
+    <button onClick={disconnectWallet}>
       Disconnect
     </button>
   );

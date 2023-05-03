@@ -435,6 +435,10 @@ const NFTOwnershipCheck = ({ onModelChange }) => {
   const [models, setModels] = useState([]);
   const [selectedModel, setSelectedModel] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [accessGranted, setAccessGranted] = useState(false);
+
+
 
 
   const disconnectWallet = () => {
@@ -444,6 +448,10 @@ const NFTOwnershipCheck = ({ onModelChange }) => {
     setConnected(false);
     setAccount(null);
     setOwner(false);
+
+    setIsLoggedIn(false);
+
+
   };
 
   const connectWallet = async () => {
@@ -457,7 +465,10 @@ const NFTOwnershipCheck = ({ onModelChange }) => {
       const accounts = await provider.request({ method: 'eth_requestAccounts' });
       setConnected(true);
       setAccount(accounts[0]);
-      checkNFTOwnership(accounts[0]);
+      const isOwner = await checkNFTOwnership(accounts[0]);
+      if (isOwner) {
+        setIsLoggedIn(true);
+      }
     } catch (error) {
       console.error('Error connecting to MetaMask:', error);
     }
@@ -469,6 +480,7 @@ const NFTOwnershipCheck = ({ onModelChange }) => {
     const currentOwner = await nftContract.methods.ownerOf(TOKEN_ID).call();
     if (currentOwner.toLowerCase() === userAddress.toLowerCase()) {
       setOwner(true);
+      setAccessGranted(true);
       setOwnershipMessage("Congratulations on your ownership of a unique dscompounding NFT! Enjoy the wisdom and leadership dscompounding.com distilled for you.");
     } else {
       setOwner(false);
@@ -497,6 +509,12 @@ const NFTOwnershipCheck = ({ onModelChange }) => {
     fetchModels();
   }, []);
 
+  useEffect(() => {
+    if (!connected) {
+      setIsLoggedIn(false);
+    }
+  }, [connected]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!connected || !owner) {
@@ -518,63 +536,64 @@ const NFTOwnershipCheck = ({ onModelChange }) => {
     setLoading(false);
   };
 
-return (
-  <div>
-    {!connected ? (
-      <button onClick={connectWallet}>Connect to Web3 Wallet</button>
-    ) : (
-      <>
-      <p>Welcome {account}</p>
-        <DisconnectButton onDisconnect={disconnectWallet} />
-        {owner ? (
-          <div>
-            <p>{ownershipMessage}</p>
-            <form onSubmit={handleSubmit}>
-            <label>
-              Select a model:
-              <select
-                className="select-style"
-                value={selectedModel}
-                onChange={(e) => {
-                  setSelectedModel(e.target.value);
-                  onModelChange(e.target.value);
-                }}
-              >
-                {models.map((model) => (
-                  <option key={model} value={model}>
-                    {model}
-                  </option>
-                ))}
-              </select>
-            </label>
-              <input
-                className='input-box'
-                type="text"
-                placeholder="Ask your question"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-              />
-              <button type="submit">Submit</button>
-            </form>
-            {responseTree && (
-            <div>
-            <h3>Answer:</h3>
-            <p>{JSON.stringify(responseTree)}</p>
-            </div>
-            )}
-            {/* Add this block for the loading message */}
-            {loading && (
-            <p className="loading-text">I'm meditating upon your question...</p>
+  return (
+    <div>
+      {!connected ? (
+        <button onClick={connectWallet}>Connect to Web3 Wallet</button>
+      ) : (
+        <>
+          <p>Welcome {account}</p>
+          <DisconnectButton disconnectWallet={disconnectWallet} />
+          {owner ? (
+            <>
+              <p>{ownershipMessage}</p>
+              <form onSubmit={handleSubmit}>
+                <label>
+                  Select a model:
+                  <select
+                    className="select-style"
+                    value={selectedModel}
+                    onChange={(e) => {
+                      setSelectedModel(e.target.value);
+                      onModelChange(e.target.value);
+                    }}
+                  >
+                    {models.map((model) => (
+                      <option key={model} value={model}>
+                        {model}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <input
+                  className="input-box"
+                  type="text"
+                  placeholder="Ask your question"
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                />
+                <button type="submit">Submit</button>
+              </form>
+              {responseTree && (
+                <div>
+                  <h3>Answer:</h3>
+                  <p>{JSON.stringify(responseTree)}</p>
+                </div>
+              )}
+              {loading && (
+                <p className="loading-text">
+                  I'm meditating upon your question...
+                </p>
+              )}
+            </>
+          ) : (
+            <p>You do not own the required NFT to access this feature.</p>
           )}
-
-          </div>
-        ) : (
-          <p>You do not own the required NFT to access this feature.</p>
-        )}
-      </>
-    )}
-  </div>
-);
-};
-
-export default NFTOwnershipCheck;
+        </>
+      )}
+    </div>
+  );
+  };
+  
+  export default NFTOwnershipCheck;
+  
